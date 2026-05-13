@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>WarehouseApp — Install</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap');
+
+    /* ── Design tokens (dark) ── */
+    :root {
+      --bg:          #08090c;
+      --surface:     rgba(255,255,255,0.045);
+      --border:      rgba(255,255,255,0.08);
+      --border-hi:   rgba(255,255,255,0.14);
+      --text:        #f0f2f5;
+      --subtext:     rgba(240,242,245,0.45);
+      --accent:      #0a84ff;
+      --accent-glow: rgba(10,132,255,0.35);
+      --green:       #30d158;
+      --green-dim:   rgba(48,209,88,0.15);
+      --mono:        'DM Mono', ui-monospace, 'SF Mono', monospace;
+      --sans:        -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+    }
+
+    /* ── Design tokens (light) ── */
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg:          #f2f2f7;
+        --surface:     rgba(255,255,255,0.78);
+        --border:      rgba(0,0,0,0.07);
+        --border-hi:   rgba(0,0,0,0.13);
+        --text:        #1c1c1e;
+        --subtext:     rgba(28,28,30,0.45);
+        --accent-glow: rgba(10,132,255,0.18);
+        --green-dim:   rgba(48,209,88,0.12);
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      background: var(--bg);
+      min-height: 100%;
+    }
+
+    body {
+      font-family: var(--sans);
+      color: var(--text);
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 20px env(safe-area-inset-bottom, 24px);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ── Atmospheric background ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 20% 10%, rgba(10,132,255,0.09) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 50% at 80% 90%, rgba(48,209,88,0.06) 0%, transparent 65%),
+        radial-gradient(ellipse 80% 60% at 50% 50%, rgba(30,30,50,0.6) 0%, transparent 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @media (prefers-color-scheme: light) {
+      body::before {
+        background:
+          radial-gradient(ellipse 60% 40% at 20% 10%, rgba(10,132,255,0.05) 0%, transparent 70%),
+          radial-gradient(ellipse 50% 50% at 80% 90%, rgba(48,209,88,0.03) 0%, transparent 65%);
+      }
+    }
+
+    /* Fine grain texture */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+      opacity: 0.4;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Layout wrapper ── */
+    .stage {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      animation: rise 0.7s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── App identity card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      backdrop-filter: blur(28px) saturate(160%);
+      -webkit-backdrop-filter: blur(28px) saturate(160%);
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+
+    .card:hover { border-color: var(--border-hi); }
+
+    .hero {
+      padding: 32px 28px 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 20px;
+    }
+
+    /* ── App icon ── */
+    .icon-wrap {
+      position: relative;
+      width: 96px;
+      height: 96px;
+    }
+
+    .icon-glow {
+      position: absolute;
+      inset: -14px;
+      border-radius: 36px;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; transform: scale(0.95); }
+      50%       { opacity: 1;   transform: scale(1.05); }
+    }
+
+    .icon {
+      position: relative;
+      width: 96px;
+      height: 96px;
+      border-radius: 21.5px;
+      object-fit: cover;
+      display: block;
+      box-shadow:
+        0 10px 40px rgba(0,0,0,0.35),
+        0 2px 8px  rgba(0,0,0,0.2);
+    }
+
+    @media (prefers-color-scheme: light) {
+      .icon {
+        box-shadow:
+          0 8px 28px rgba(0,0,0,0.13),
+          0 2px 6px  rgba(0,0,0,0.08),
+          0 0 0 0.5px rgba(0,0,0,0.06);
+      }
+    }
+
+    /* ── App meta ── */
+    .app-name {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.6px;
+      line-height: 1.1;
+      color: var(--text);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .app-name {
+        background: linear-gradient(170deg, #ffffff 30%, rgba(240,242,245,0.6) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+    }
+
+    .version-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: -6px;
+    }
+
+    .version-badge {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      color: var(--accent);
+      background: rgba(10,132,255,0.12);
+      border: 1px solid rgba(10,132,255,0.25);
+      border-radius: 6px;
+      padding: 3px 8px;
+    }
+
+    .platform-badge {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.4px;
+      color: var(--subtext);
+      background: rgba(128,128,128,0.08);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 3px 8px;
+    }
+
+    /* ── Install button ── */
+    .install-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 16px 24px;
+      background: linear-gradient(160deg, #0a84ff 0%, #0060d4 100%);
+      color: #fff;
+      font-family: var(--sans);
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+      border: none;
+      border-radius: 14px;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow:
+        0 4px 24px rgba(10,132,255,0.4),
+        inset 0 1px 0 rgba(255,255,255,0.18);
+      transition:
+        transform 0.15s cubic-bezier(0.34,1.56,0.64,1),
+        box-shadow 0.2s ease,
+        filter 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .install-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 60%);
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    .install-btn:hover {
+      transform: translateY(-2px) scale(1.01);
+      box-shadow:
+        0 8px 36px rgba(10,132,255,0.5),
+        inset 0 1px 0 rgba(255,255,255,0.18);
+    }
+
+    .install-btn:active {
+      transform: scale(0.97);
+      box-shadow: 0 2px 12px rgba(10,132,255,0.3);
+      filter: brightness(0.92);
+    }
+
+    .btn-icon { flex-shrink: 0; }
+
+    /* ── Divider ── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0 28px;
+    }
+
+    /* ── Changelog section ── */
+    .changelog {
+      padding: 20px 28px 24px;
+    }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--subtext);
+      margin-bottom: 14px;
+    }
+
+    .log-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .log-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .log-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      flex-shrink: 0;
+      margin-top: 6px;
+      box-shadow: 0 0 6px var(--green);
+    }
+
+    .log-dot.accent { background: var(--accent);  box-shadow: 0 0 6px var(--accent); }
+    .log-dot.warn   { background: #ff9f0a;         box-shadow: 0 0 6px #ff9f0a; }
+    .log-dot.remove { background: #ff453a;         box-shadow: 0 0 6px #ff453a; }
+
+    .log-text {
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--text);
+      opacity: 0.82;
+    }
+
+    .log-tag {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin-right: 6px;
+      vertical-align: 1px;
+    }
+
+    .log-tag.feature { background: var(--green-dim);           color: var(--green); }
+    .log-tag.new-tag { background: rgba(10,132,255,0.12);       color: var(--accent); }
+    .log-tag.fix     { background: rgba(255,159,10,0.12);       color: #ff9f0a; }
+    .log-tag.ux      { background: rgba(191,90,242,0.12);       color: #bf5af2; }
+    .log-tag.remove  { background: rgba(255,69,58,0.10);        color: #ff453a; }
+
+    /* ── Meta row ── */
+    .meta-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .meta-cell {
+      background: var(--surface);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 14px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      text-align: center;
+    }
+
+    .meta-cell:first-child { border-radius: 15px 0 0 15px; }
+    .meta-cell:last-child  { border-radius: 0 15px 15px 0; }
+
+    .meta-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--subtext);
+    }
+
+    .meta-value {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.2px;
+    }
+
+    /* ── Notice ── */
+    .notice {
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--subtext);
+      text-align: center;
+      padding: 0 4px;
+      animation: rise 0.7s 0.25s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    .notice strong {
+      color: rgba(240,242,245,0.7);
+    }
+
+    @media (prefers-color-scheme: light) {
+      .notice strong { color: rgba(28,28,30,0.7); }
+    }
+
+    /* ── iPad / larger screens ── */
+    @media (min-width: 600px) {
+      .stage     { max-width: 520px; }
+      .hero      { padding: 40px 36px 32px; }
+      .icon-wrap { width: 104px; height: 104px; }
+      .icon      { width: 104px; height: 104px; border-radius: 23px; }
+      .app-name  { font-size: 30px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="stage">
+
+    <!-- Main card -->
+    <div class="card">
+      <div class="hero">
+
+        <!-- App icon -->
+        <div class="icon-wrap">
+          <div class="icon-glow"></div>
+          <img class="icon" src="icon.png" alt="WarehouseApp" width="96" height="96" />
+        </div>
+
+        <!-- Name + version -->
+        <div>
+          <div class="app-name">WarehouseApp</div>
+          <div class="version-row">
+            <span class="version-badge">v2.1.2</span>
+            <span class="platform-badge">iPadOS · Ad Hoc</span>
+          </div>
+        </div>
+
+        <!-- Install button -->
+        <a
+          class="install-btn"
+          href="itms-services://?action=download-manifest&url=https://jamezzh7.github.io/WarehouseApp-OTA/manifest.plist"
+        >
+          <svg class="btn-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M10 2.5v10M10 12.5l-3.5-3.5M10 12.5l3.5-3.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M3.5 14.5v1a1.5 1.5 0 001.5 1.5h10a1.5 1.5 0 001.5-1.5v-1" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          Install · Update App
+        </a>
+
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Changelog -->
+      <div class="changelog">
+        <div class="section-label">What's new in v2.1</div>
+        <ul class="log-list">
+          <li class="log-item">
+            <span class="log-dot accent"></span>
+            <span class="log-text">
+              <span class="log-tag new-tag">New</span>
+              In-app language switcher — toggle between English &amp; 中文 without leaving the app.
+            </span>
+          </li>
+          <li class="log-item">
+            <span class="log-dot"></span>
+            <span class="log-text">
+              <span class="log-tag ux">UX</span>
+              Monochrome splash &amp; login redesign — clean black-and-white entry experience.
+            </span>
+          </li>
+          <li class="log-item">
+            <span class="log-dot remove"></span>
+            <span class="log-text">
+              <span class="log-tag remove">Remove</span>
+              Temperature display removed from inventory views for a cleaner interface.
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Meta row -->
+    <div class="meta-row">
+      <div class="meta-cell">
+        <span class="meta-label">Version</span>
+        <span class="meta-value">2.1.2</span>
+      </div>
+      <div class="meta-cell">
+        <span class="meta-label">Platform</span>
+        <span class="meta-value">iPadOS</span>
+      </div>
+      <div class="meta-cell">
+        <span class="meta-label">Dist.</span>
+        <span class="meta-value">Ad Hoc</span>
+      </div>
+    </div>
+
+    <!-- Fine print -->
+    <p class="notice">
+      Tap <strong>Install</strong> from Safari on your registered iPad.<br>
+      Your device must be listed in the provisioning profile.
+    </p>
+
+  </div>
+
+</body>
+</html>
